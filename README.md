@@ -27,8 +27,9 @@ cd person_detection
 ### 🛠️ Clear Target Environment Variables
 If you previously set a build target, **clear `IDF_TARGET`** to avoid conflicts:
 ```bash
-idf.py fullclean
+Remove-Item Env:IDF_TARGET
 idf.py set-target esp32s3
+idf.py fullclean
 ```
 Make sure `idf.py` no longer auto-picks the wrong chip.
 
@@ -81,7 +82,7 @@ idf.py -p COM4 flash monitor
 
 ## ✅ Example Output
 ```text
-ON = 83%, OFF = 5%, NEUTRAL = 12%
+person score:9%, no person score 91%
 Image Captured
 ```
 
