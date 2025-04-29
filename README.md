@@ -1,6 +1,6 @@
-# ESP32-S3 Eye Person Detection (Custom Model)
+# ESP32-S3 Eye Person Detection (Default Model)
 
-This project demonstrates how to flash a **custom person detection model** with 3 categories (`ON`, `OFF`, `NEUTRAL`) onto an **ESP32-S3 Eye** using the [esp-tflite-micro](https://github.com/espressif/esp-tflite-micro) repository.
+This project demonstrates how to flash a **person detection model** onto an **ESP32-S3 Eye** using the [esp-tflite-micro](https://github.com/espressif/esp-tflite-micro) repository.
 
 ---
 
@@ -24,33 +24,13 @@ cd esp-tflite-micro
 cd person_detection
 ```
 
----
-
-## 🔧 Modify for ESP32-S3 Eye and Custom Model
-
-### 📁 Replace Model Files
-Replace the default model with your own quantized `.h` and `.cpp` model files in the project directory.
-
-### ✍️ Update `model_settings.cc`
-```cpp
-constexpr int kCategoryCount = 3;
-const char* kCategoryLabels[kCategoryCount] = {"ON", "OFF", "NEUTRAL"};
+### 🛠️ Clear Target Environment Variables
+If you previously set a build target, **clear `IDF_TARGET`** to avoid conflicts:
+```bash
+idf.py fullclean
+idf.py set-target esp32s3
 ```
-
-### ✍️ Update Output Parsing in `main_functions.cc`
-Print percentages:
-```cpp
-float score = (output->data.uint8[i] - output->params.zero_point) * output->params.scale;
-```
-Clamp values with:
-```cpp
-int to_percent(float score) {
-    int pct = static_cast<int>(score * 100.0f + 0.5f);
-    if (pct < 0) return 0;
-    if (pct > 100) return 100;
-    return pct;
-}
-```
+Make sure `idf.py` no longer auto-picks the wrong chip.
 
 ---
 
@@ -62,9 +42,9 @@ int to_percent(float score) {
 ### ❌ `kPersonIndex` not found
 **Fix:** Replace with index-based access and custom label logic:
 ```cpp
-output->data.uint8[0] // ON
-output->data.uint8[1] // OFF
-output->data.uint8[2] // NEUTRAL
+output->data.uint8[0] // First label
+output->data.uint8[1] // Second label
+output->data.uint8[2] // Third label (if applicable)
 ```
 
 ### ❌ "Didn't find op for builtin opcode 'FULLY_CONNECTED'"
@@ -72,10 +52,10 @@ output->data.uint8[2] // NEUTRAL
 ```cpp
 micro_op_resolver.AddFullyConnected();
 ```
-Update count from `<5>` to `<6>` if needed.
+Update resolver count as needed.
 
 ### ❌ Output greater than 100%
-**Fix:** Use the `to_percent()` function above to clamp values between 0 and 100.
+**Fix:** Clamp inference percentages between 0 and 100.
 
 ---
 
@@ -83,7 +63,7 @@ Update count from `<5>` to `<6>` if needed.
 
 ```bash
 idf.py set-target esp32s3
-idf.py menuconfig  # Optional
+idf.py menuconfig  # Optional for configuration
 idf.py fullclean
 idf.py build
 ```
@@ -119,10 +99,30 @@ Thanks to the [Espressif](https://github.com/espressif) team and TensorFlow Lite
 
 ---
 
-## 🧪 To Do / Next Steps
-- Add GPIO output or LED trigger on ON detection
-- Display results on an OLED screen
-- Capture images to SD card for training feedback
+## 🧪 Next Steps (Personalization)
+
+### 🎯 Customize Model
+- Replace the default model with your own quantized `.h` and `.cpp` files.
+- Update `model_settings.cc`:
+  ```cpp
+  constexpr int kCategoryCount = 3;
+  const char* kCategoryLabels[kCategoryCount] = {"ON", "OFF", "NEUTRAL"};
+  ```
+
+### 🎯 Adjust Output Parsing
+- Modify `main_functions.cc` to print and clamp outputs:
+  ```cpp
+  int to_percent(float score) {
+      int pct = static_cast<int>(score * 100.0f + 0.5f);
+      if (pct < 0) return 0;
+      if (pct > 100) return 100;
+      return pct;
+  }
+  ```
+
+### 🎯 GPIO or Display Integration
+- Trigger LEDs or GPIO when a certain label confidence exceeds threshold.
+- Add OLED screen output for live inference results.
 
 ---
 
