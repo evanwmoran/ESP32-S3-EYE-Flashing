@@ -1,8 +1,7 @@
 # ESP32-S3 Eye Person Detection (Default Model)
 
 This project demonstrates how to flash a **person detection model** onto an **ESP32-S3 Eye** using the [esp-tflite-micro](https://github.com/espressif/esp-tflite-micro) repository.
-[![Watch the demo](https://www.youtube.com/watch?v=mUfiENhntOk)]
-
+[![Watch the demo](assets/Thumnail.png)](https://youtu.be/mUfiENhntOk)
 ---
 
 ## 🚀 Getting Started
